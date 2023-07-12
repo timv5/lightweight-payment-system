@@ -1,0 +1,28 @@
+version: '3'
+
+networks:
+  lightweight-payment-proxy:
+    driver: bridge
+
+services:
+
+  lightweight-payment-db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_DATABASE=lightweight-payment-db
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_USERNAME=root
+    ports:
+      - '3306:3306'
+    networks:
+      - lightweight-payment-proxy
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - lightweight-payment-proxy
