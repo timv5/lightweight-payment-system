@@ -1,10 +1,15 @@
 package com.learning.belightweightpaymentsystem.service;
 
-import com.learning.belightweightpaymentsystem.dto.Order;
+import com.learning.belightweightpaymentsystem.dto.OrderDetailsDto;
+import com.learning.belightweightpaymentsystem.dto.OrderDto;
 import com.learning.belightweightpaymentsystem.dto.ResponseWrapper;
+
+import java.util.List;
 
 public interface OrderService {
 
-    ResponseWrapper<Order> createOrder(Order order) throws Exception;
+    ResponseWrapper<OrderDto> createOrder(OrderDto order) throws Exception;
+
+    ResponseWrapper<List<OrderDetailsDto>> getOrders(Integer userId);
 
 }

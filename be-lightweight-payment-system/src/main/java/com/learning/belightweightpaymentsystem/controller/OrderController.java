@@ -1,15 +1,15 @@
 package com.learning.belightweightpaymentsystem.controller;
 
-import com.learning.belightweightpaymentsystem.dto.Order;
+import com.learning.belightweightpaymentsystem.dto.OrderDetailsDto;
+import com.learning.belightweightpaymentsystem.dto.OrderDto;
 import com.learning.belightweightpaymentsystem.dto.ResponseWrapper;
 import com.learning.belightweightpaymentsystem.service.OrderServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -24,9 +24,24 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseWrapper<Order>> creteOrder(@RequestBody Order order) {
+    public ResponseEntity<ResponseWrapper<OrderDto>> creteOrder(@RequestBody OrderDto order) {
         try {
-            ResponseWrapper<Order> response = orderService.createOrder(order);
+            ResponseWrapper<OrderDto> response = orderService.createOrder(order);
+            if (response.isSuccess()) {
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<ResponseWrapper<List<OrderDetailsDto>>> getOrders(@RequestParam Integer userId) {
+        try {
+            ResponseWrapper<List<OrderDetailsDto>> response = orderService.getOrders(userId);
             if (response.isSuccess()) {
                 return ResponseEntity.ok(response);
             } else {

@@ -1,16 +1,15 @@
 package com.learning.belightweightpaymentsystem.service;
 
-import com.learning.belightweightpaymentsystem.dto.Order;
+import com.learning.belightweightpaymentsystem.dto.OrderDetailsDto;
+import com.learning.belightweightpaymentsystem.dto.OrderDto;
 import com.learning.belightweightpaymentsystem.dto.ResponseWrapper;
 import com.learning.belightweightpaymentsystem.enums.OrderStatus;
 import com.learning.belightweightpaymentsystem.model.OrderEntity;
 import com.learning.belightweightpaymentsystem.model.ProductEntity;
 import com.learning.belightweightpaymentsystem.model.ProductStockEntity;
-import com.learning.belightweightpaymentsystem.model.UserBalanceEntity;
 import com.learning.belightweightpaymentsystem.repository.OrderRepository;
 import com.learning.belightweightpaymentsystem.repository.ProductRepository;
 import com.learning.belightweightpaymentsystem.repository.ProductStockRepository;
-import com.learning.belightweightpaymentsystem.repository.UserBalanceRepository;
 import com.learning.belightweightpaymentsystem.utils.QRCodeGenerator;
 import com.learning.belightweightpaymentsystem.utils.QRCodeUrlGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,22 +32,46 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductStockRepository productStockRepository;
     private final ProductRepository productRepository;
-    private final UserBalanceRepository userBalanceRepository;
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
                             ProductStockRepository productStockRepository,
-                            ProductRepository productRepository,
-                            UserBalanceRepository userBalanceRepository
+                            ProductRepository productRepository
     ) {
         this.orderRepository = orderRepository;
         this.productStockRepository = productStockRepository;
         this.productRepository = productRepository;
-        this.userBalanceRepository = userBalanceRepository;
+    }
+
+    public ResponseWrapper<List<OrderDetailsDto>> getOrders(Integer userId) {
+        List<OrderEntity> orders = orderRepository.getAllByUserId(userId);
+        if (orders.isEmpty()) {
+            return new ResponseWrapper<>(true);
+        }
+
+        List<OrderDetailsDto> details = new ArrayList<>();
+        for (OrderEntity order: orders) {
+            Optional<ProductEntity> productEntity = productRepository.findById(order.getProductId());
+            if (productEntity.isEmpty()) {
+                continue;
+            }
+            OrderDetailsDto orderDetailsDto = OrderDetailsDto.builder()
+                    .productPrice(productEntity.get().getProductPrice())
+                    .productName(productEntity.get().getProductName())
+                    .orderStatus(order.getOrderStatus())
+                    .quantity(order.getQuantity())
+                    .userId(userId)
+                    .orderPrice(order.getQuantity() * productEntity.get().getProductPrice())
+                    .orderId(order.getOrderId())
+                    .build();
+            details.add(orderDetailsDto);
+        }
+
+        return new ResponseWrapper<>(details, true);
     }
 
     @Transactional
-    public ResponseWrapper<Order> createOrder(Order order) throws Exception {
+    public ResponseWrapper<OrderDto> createOrder(OrderDto order) throws Exception {
         Optional<ProductEntity> productEntityOptional = productRepository.findById(order.getProductId());
         if (productEntityOptional.isEmpty()) {
             log.error("Cannot find product with id {}", order.getProductId());
@@ -65,19 +90,6 @@ public class OrderServiceImpl implements OrderService {
             return new ResponseWrapper<>(false);
         }
 
-        Optional<UserBalanceEntity> userBalanceEntity = userBalanceRepository.findUserBalanceEntityByUserId(order.getUserId());
-        if (userBalanceEntity.isEmpty()) {
-            log.error("Missing user balance for user {}", order.getUserId());
-            return new ResponseWrapper<>(false);
-        }
-
-        ProductEntity product = productEntityOptional.get();
-        double calculatedPrice = order.getQuantity() * product.getProductPrice();
-        if (calculatedPrice > userBalanceEntity.get().getBalance()) {
-            log.error("User {} balance too low", order.getUserId());
-            return new ResponseWrapper<>(false);
-        }
-
         OrderEntity orderEntity = orderRepository.save(mapOrderEntity(order));
         order.setOrderStatus(OrderStatus.STARTED);
         order.setOrderId(orderEntity.getOrderId());
@@ -93,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
         return new ResponseWrapper<>(order, true);
     }
 
-    private OrderEntity mapOrderEntity(Order order) {
+    private OrderEntity mapOrderEntity(OrderDto order) {
         return OrderEntity.builder()
                 .orderStatus(OrderStatus.STARTED)
                 .quantity(order.getQuantity())

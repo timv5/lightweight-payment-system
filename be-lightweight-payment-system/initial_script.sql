@@ -15,6 +15,3 @@ values (3, 3, 10);
 
 insert into users (user_id, user_email)
 values (1, 'test@test.com');
-
-insert into user_balances (user_balance_id, balance, user_id)
-values (1, 5000, 1);

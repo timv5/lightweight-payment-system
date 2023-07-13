@@ -1,8 +1,6 @@
 package com.learning.belightweightpaymentsystem.dto;
 
 import com.learning.belightweightpaymentsystem.enums.OrderStatus;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.*;
 
 @Data
@@ -10,14 +8,14 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 @Builder
-public class Order {
+public class OrderDetailsDto {
 
     private Integer orderId;
-    @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus;
     private Integer userId;
-    private Integer productId;
+    private String productName;
+    private Double productPrice;
     private Integer quantity;
-    private byte[] qrImage;
+    private Double orderPrice;
+    private OrderStatus orderStatus;
 
 }
