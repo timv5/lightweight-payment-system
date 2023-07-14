@@ -2,6 +2,7 @@ package com.learning.belightweightpaymentsystem.service;
 
 import com.learning.belightweightpaymentsystem.dto.OrderDetailsDto;
 import com.learning.belightweightpaymentsystem.dto.OrderDto;
+import com.learning.belightweightpaymentsystem.dto.PaymentDto;
 import com.learning.belightweightpaymentsystem.dto.ResponseWrapper;
 import com.learning.belightweightpaymentsystem.enums.OrderStatus;
 import com.learning.belightweightpaymentsystem.model.OrderEntity;
@@ -41,6 +42,22 @@ public class OrderServiceImpl implements OrderService {
         this.orderRepository = orderRepository;
         this.productStockRepository = productStockRepository;
         this.productRepository = productRepository;
+    }
+
+    @Transactional
+    public void completeOrder(PaymentDto paymentDto) {
+        if (paymentDto == null || paymentDto.getOrderId() == null || paymentDto.getUserId() == null || paymentDto.getNewOrderStatus() == null) {
+            log.error("Missing message data");
+            return;
+        }
+
+        Optional<OrderEntity> orderEntity = orderRepository.findById(paymentDto.getOrderId())
+                .filter(order -> !order.getOrderStatus().equals(OrderStatus.COMPLETED));
+        orderEntity.ifPresent(entity -> {
+            entity.setOrderStatus(paymentDto.getNewOrderStatus());
+            orderRepository.save(entity);
+            log.info("Completing order {} with status", entity.getOrderStatus());
+        });
     }
 
     public ResponseWrapper<List<OrderDetailsDto>> getOrders(Integer userId) {

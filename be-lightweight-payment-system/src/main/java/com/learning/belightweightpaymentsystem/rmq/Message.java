@@ -14,6 +14,6 @@ public class Message<T> {
 
     private T message;
     private Date date;
-    private UUID uuid;
+    private UUID identifier;
 
 }
