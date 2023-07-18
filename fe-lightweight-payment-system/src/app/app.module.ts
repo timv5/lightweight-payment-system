@@ -6,17 +6,25 @@ import { AppComponent } from './app.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CancelPaymentComponent } from './cancel-payment/cancel-payment.component';
 import { SuccessPaymentComponent } from './success-payment/success-payment.component';
+import { CheckoutPaymentComponent } from './checkout-payment/checkout-payment.component';
+import {MatCardModule} from "@angular/material/card";
+import {MatButtonModule} from "@angular/material/button";
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
   declarations: [
     AppComponent,
     CancelPaymentComponent,
-    SuccessPaymentComponent
+    SuccessPaymentComponent,
+    CheckoutPaymentComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NoopAnimationsModule
+    NoopAnimationsModule,
+    MatCardModule,
+    MatButtonModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
