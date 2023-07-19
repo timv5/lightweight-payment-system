@@ -6,7 +6,7 @@ import (
 )
 
 type TransactionRepositoryInterface interface {
-	SaveTransaction(userId int, orderId int, transactionAmount float32, transactionStatus string, externalTransactionId string)
+	SaveTransaction(userId int, orderId int, transactionAmount float32, transactionStatus string, externalTransactionId string) (model.Transaction, error)
 }
 
 type TransactionRepository struct {

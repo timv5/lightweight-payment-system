@@ -10,13 +10,17 @@ type Config struct {
 	DBName         string `mapstructure:"MYSQL_NAME"`
 	DBPort         string `mapstructure:"MYSQL_PORT"`
 
-	// rmq configs
+	// rmqConsumer configs
 	RMQUrl         string `mapstructure:"RMQ_URL"`
 	RMQQueueName   string `mapstructure:"RMQ_QUEUE_NAME"`
 	RMQExchangeKey string `mapstructure:"RMQ_EXCHANGE_KEY"`
 
 	// stripe configs
 	StripeSecretKey string `mapstructure:"STRIPE_KEY"`
+
+	// app configs
+	ServerPort   string `mapstructure:"SERVER_PORT"`
+	ClientOrigin string `mapstructure:"CLIENT_ORIGIN"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

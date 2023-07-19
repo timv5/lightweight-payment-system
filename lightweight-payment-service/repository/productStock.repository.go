@@ -6,7 +6,7 @@ import (
 )
 
 type ProductStockRepositoryInterface interface {
-	GetProductStock(productId int)
+	GetProductStock(productId int) (model.ProductStock, error)
 }
 
 type ProductStockRepository struct {
