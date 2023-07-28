@@ -16,5 +16,4 @@ func NewPaymentRouteHandler(paymentHandler handler.PaymentHandler) PaymentRouteH
 func (paymentHandler *PaymentRouteHandler) PaymentRoute(group *gin.RouterGroup) {
 	router := group.Group("payment")
 	router.POST("/startPayment", paymentHandler.paymentHandler.StartPayment)
-	router.POST("/completePayment", paymentHandler.paymentHandler.CompletePayment)
 }

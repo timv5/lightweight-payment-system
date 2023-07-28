@@ -19,7 +19,7 @@ func NewProductStockRepository(mySQL *gorm.DB) *ProductStockRepository {
 
 func (repo *ProductStockRepository) GetProductStock(productId int) (model.ProductStock, error) {
 	var productStock model.ProductStock
-	repo.mySQL.Raw("select productStockId, productId, quantity from product_stock where product_id = ?", productId).Scan(&productStock)
+	repo.mySQL.Raw("select product_stock_id, product_id, quantity from products_stock where product_id = ?", productId).Scan(&productStock)
 	if (model.ProductStock{} == productStock) {
 		return model.ProductStock{}, nil
 	} else {
