@@ -16,5 +16,6 @@ public class PaymentDto {
     private Integer userId;
     @Enumerated(EnumType.STRING)
     private OrderStatus newOrderStatus;
+    private Integer transactionId;
 
 }
