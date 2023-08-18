@@ -13,6 +13,8 @@ public interface OrderService {
 
     ResponseWrapper<List<OrderDetailsDto>> getOrders(Integer userId);
 
+    ResponseWrapper<OrderDetailsDto> getOrder(Integer userId, Integer orderId);
+
     void completeOrder(PaymentDto paymentDto);
 
 }

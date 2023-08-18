@@ -53,4 +53,19 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/details")
+    public ResponseEntity<ResponseWrapper<OrderDetailsDto>> getOrder(@RequestParam Integer userId, @RequestParam Integer orderId) {
+        try {
+            ResponseWrapper<OrderDetailsDto> response = orderService.getOrder(userId, orderId);
+            if (response.isSuccess()) {
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.badRequest().body(response);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 }

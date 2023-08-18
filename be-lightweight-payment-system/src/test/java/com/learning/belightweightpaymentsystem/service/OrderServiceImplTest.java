@@ -1,5 +1,6 @@
 package com.learning.belightweightpaymentsystem.service;
 
+import com.learning.belightweightpaymentsystem.dto.OrderDetailsDto;
 import com.learning.belightweightpaymentsystem.dto.OrderDto;
 import com.learning.belightweightpaymentsystem.dto.ResponseWrapper;
 import com.learning.belightweightpaymentsystem.enums.OrderStatus;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +37,94 @@ class OrderServiceImplTest {
 
     @InjectMocks
     private OrderServiceImpl orderService;
+
+    @Test
+    void getOrder_missing_order() {
+        // input
+        Integer userId = 1;
+        Integer orderId = 1;
+
+        // output
+        Optional<OrderEntity> actualData = Optional.empty();
+        ResponseWrapper<?> expected = new ResponseWrapper<>(false);
+
+        when(orderRepository.findOrderByOrderId(userId)).thenReturn(actualData);
+        ResponseWrapper<?> actual = orderService.getOrder(userId, orderId);
+
+        assertEquals(expected.isSuccess(), actual.isSuccess());
+        assertEquals(expected.getData(), actual.getData());
+    }
+
+    @Test
+    void getOrder_missingProduct() {
+        // prepare data
+        Integer orderId = 1;
+        Integer userId = 1;
+        Integer productId = 1;
+        OrderEntity data = OrderEntity.builder()
+                .orderStatus(OrderStatus.STARTED)
+                .userId(userId)
+                .productId(productId)
+                .quantity(5)
+                .build();
+        Optional<OrderEntity> actualData = Optional.of(data);
+
+        ResponseWrapper<?> expected = new ResponseWrapper<>(false);
+
+        // condition
+        when(orderRepository.findOrderByOrderId(orderId)).thenReturn(actualData);
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        // execute
+        ResponseWrapper<?> actual = orderService.getOrder(userId, orderId);
+
+        assertEquals(expected.isSuccess(), actual.isSuccess());
+        assertEquals(expected.getData(), actual.getData());
+    }
+
+    @Test
+    void getOrder_success() {
+        // prepare data
+        Integer orderId = 1;
+        Integer userId = 1;
+        Integer productId = 1;
+        OrderEntity data = OrderEntity.builder()
+                .orderStatus(OrderStatus.STARTED)
+                .userId(userId)
+                .productId(productId)
+                .quantity(5)
+                .build();
+        Optional<OrderEntity> actualData = Optional.of(data);
+
+        ProductEntity productEntity = ProductEntity.builder()
+                .productPrice(10d)
+                .productName("test")
+                .build();
+        Optional<ProductEntity> expectedProduct = Optional.of(productEntity);
+
+        OrderDetailsDto orderDetailsDto = OrderDetailsDto.builder()
+                .productPrice(productEntity.getProductPrice())
+                .productName(productEntity.getProductName())
+                .orderPrice(data.getQuantity() * productEntity.getProductPrice())
+                .orderStatus(data.getOrderStatus())
+                .quantity(data.getQuantity())
+                .orderId(data.getOrderId())
+                .build();
+
+        // expected
+        ResponseWrapper<OrderDetailsDto> expected = new ResponseWrapper<>(orderDetailsDto,true);
+
+        // condition
+        when(orderRepository.findOrderByOrderId(orderId)).thenReturn(actualData);
+        when(productRepository.findById(any(Integer.class))).thenReturn(expectedProduct);
+
+        // execute
+        ResponseWrapper<OrderDetailsDto> actual = orderService.getOrder(userId, orderId);
+
+        assertEquals(expected.isSuccess(), actual.isSuccess());
+        assertEquals(expected.getData().getOrderId(), actual.getData().getOrderId());
+        assertEquals(expected.getData().getOrderPrice(), actual.getData().getOrderPrice());
+    }
 
     @Test
     void getOrders_empty_success() {

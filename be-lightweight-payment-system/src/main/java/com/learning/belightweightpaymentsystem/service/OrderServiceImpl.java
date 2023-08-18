@@ -87,6 +87,33 @@ public class OrderServiceImpl implements OrderService {
         return new ResponseWrapper<>(details, true);
     }
 
+    @Override
+    public ResponseWrapper<OrderDetailsDto> getOrder(Integer userId, Integer orderId) {
+        Optional<OrderEntity> order = orderRepository.findOrderByOrderId(orderId);
+        if (order.isEmpty()) {
+            log.error("Missing order {}", orderId);
+            return new ResponseWrapper<>(false);
+        }
+
+        Optional<ProductEntity> productEntity = productRepository.findById(order.get().getProductId());
+        if (productEntity.isEmpty()) {
+            log.error("Missing product {} for order {}", order.get().getProductId(), order.get().getOrderId());
+            return new ResponseWrapper<>(false);
+        }
+
+        OrderDetailsDto orderDetailsDto = OrderDetailsDto.builder()
+                .productPrice(productEntity.get().getProductPrice())
+                .productName(productEntity.get().getProductName())
+                .orderStatus(order.get().getOrderStatus())
+                .quantity(order.get().getQuantity())
+                .userId(userId)
+                .orderPrice(order.get().getQuantity() * productEntity.get().getProductPrice())
+                .orderId(order.get().getOrderId())
+                .build();
+
+        return new ResponseWrapper<>(orderDetailsDto, true);
+    }
+
     @Transactional
     public ResponseWrapper<OrderDto> createOrder(OrderDto order) throws Exception {
         Optional<ProductEntity> productEntityOptional = productRepository.findById(order.getProductId());
