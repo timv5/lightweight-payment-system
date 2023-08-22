@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"lightweight-payment-service/dto/request"
 	"lightweight-payment-service/service"
+	"log"
 	"net/http"
 )
 
@@ -39,4 +40,20 @@ func (ph PaymentHandler) StartPayment(ctx *gin.Context) {
 	} else {
 		ctx.JSON(http.StatusOK, paymentResponse)
 	}
+}
+
+func (ph PaymentHandler) CompletePayment(ctx *gin.Context) {
+	var webhookRequestPayload *request.WebhookRequest
+	if err := ctx.ShouldBindJSON(&webhookRequestPayload); err != nil {
+		log.Println("Webhook: Missing stripe body")
+		return
+	}
+
+	if webhookRequestPayload.Type == "" {
+		log.Println("Webhook: Missing stripe status")
+		return
+	}
+
+	// complete payment on our side
+	ph.paymentService.CompletePayment(webhookRequestPayload)
 }

@@ -15,5 +15,8 @@ func NewPaymentRouteHandler(paymentHandler handler.PaymentHandler) PaymentRouteH
 
 func (paymentHandler *PaymentRouteHandler) PaymentRoute(group *gin.RouterGroup) {
 	router := group.Group("payment")
+	// endpoint called by FE
 	router.POST("/startPayment", paymentHandler.paymentHandler.StartPayment)
+	// webhook called by stripe
+	router.POST("/completePayment", paymentHandler.paymentHandler.CompletePayment)
 }

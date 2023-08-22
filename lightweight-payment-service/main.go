@@ -33,9 +33,11 @@ func main() {
 	transactionRepository := repository.NewTransactionRepository(configs.DB)
 	productRepository := repository.NewProductRepository(configs.DB)
 
+	// services
 	stripeService := service.NewStripeService(&config)
 	paymentService := service.NewPaymentService(&config, transactionRepository, orderRepository, productStockRepository, productRepository, stripeService)
 
+	// handlers
 	PaymentController = handler.NewPaymentHandler(configs.DB, paymentService)
 	PaymentRouteController = route.NewPaymentRouteHandler(PaymentController)
 
@@ -44,7 +46,11 @@ func main() {
 	corsConfig.AllowOrigins = []string{"http://localhost:8081", config.ClientOrigin}
 	corsConfig.AllowCredentials = true
 	server.Use(cors.New(corsConfig))
+
+	// main controller
 	router := server.Group("/api")
+
+	// controllers
 	PaymentRouteController.PaymentRoute(router)
 
 	log.Fatal(server.Run(":" + config.ServerPort))
