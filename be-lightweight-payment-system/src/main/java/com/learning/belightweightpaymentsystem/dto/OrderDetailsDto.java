@@ -11,7 +11,6 @@ import lombok.*;
 public class OrderDetailsDto {
 
     private Integer orderId;
-    private Integer userId;
     private String productName;
     private Double productPrice;
     private Integer quantity;

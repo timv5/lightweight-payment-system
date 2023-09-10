@@ -15,7 +15,6 @@ public class OrderDto {
     private Integer orderId;
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
-    private Integer userId;
     private Integer productId;
     private Integer quantity;
     private byte[] qrImage;

@@ -39,9 +39,9 @@ public class OrderController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<ResponseWrapper<List<OrderDetailsDto>>> getOrders(@RequestParam Integer userId) {
+    public ResponseEntity<ResponseWrapper<List<OrderDetailsDto>>> getOrders() {
         try {
-            ResponseWrapper<List<OrderDetailsDto>> response = orderService.getOrders(userId);
+            ResponseWrapper<List<OrderDetailsDto>> response = orderService.getOrders();
             if (response.isSuccess()) {
                 return ResponseEntity.ok(response);
             } else {
@@ -54,9 +54,9 @@ public class OrderController {
     }
 
     @GetMapping("/details")
-    public ResponseEntity<ResponseWrapper<OrderDetailsDto>> getOrder(@RequestParam Integer userId, @RequestParam Integer orderId) {
+    public ResponseEntity<ResponseWrapper<OrderDetailsDto>> getOrder(@RequestParam Integer orderId) {
         try {
-            ResponseWrapper<OrderDetailsDto> response = orderService.getOrder(userId, orderId);
+            ResponseWrapper<OrderDetailsDto> response = orderService.getOrder(orderId);
             if (response.isSuccess()) {
                 return ResponseEntity.ok(response);
             } else {

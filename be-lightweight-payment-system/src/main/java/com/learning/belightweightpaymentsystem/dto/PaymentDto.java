@@ -13,7 +13,6 @@ import lombok.*;
 public class PaymentDto {
 
     private Integer orderId;
-    private Integer userId;
     @Enumerated(EnumType.STRING)
     private OrderStatus newOrderStatus;
     private Integer transactionId;

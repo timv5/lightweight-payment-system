@@ -12,6 +12,3 @@ insert into products_stock (product_stock_id, product_id, quantity)
 values (2, 2, 10);
 insert into products_stock (product_stock_id, product_id, quantity)
 values (3, 3, 10);
-
-insert into users (user_id, user_email)
-values (1, 'test@test.com');

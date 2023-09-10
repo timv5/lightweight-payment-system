@@ -40,7 +40,6 @@ class OrderControllerTest {
     @Test
     void creteOrder_success() throws Exception {
         OrderDto orderDto = OrderDto.builder()
-                .userId(1)
                 .productId(1)
                 .quantity(3)
                 .build();
@@ -58,7 +57,6 @@ class OrderControllerTest {
     @Test
     void creteOrder_bad_request() throws Exception {
         OrderDto orderDto = OrderDto.builder()
-                .userId(1)
                 .productId(1)
                 .quantity(3)
                 .build();
@@ -76,7 +74,6 @@ class OrderControllerTest {
     @Test
     void creteOrder_exception() throws Exception {
         OrderDto orderDto = OrderDto.builder()
-                .userId(1)
                 .productId(1)
                 .quantity(3)
                 .build();
@@ -93,13 +90,11 @@ class OrderControllerTest {
 
     @Test
     void getOrders_success() throws Exception {
-        Integer userId = 1;
-
         List<OrderDetailsDto> orders = new ArrayList<>();
         ResponseWrapper<List<OrderDetailsDto>> expected = new ResponseWrapper<>(orders, true);
 
-        when(orderService.getOrders(userId)).thenReturn(expected);
-        MvcResult result = mockMvc.perform(get("/api/order/list").contentType(MediaType.APPLICATION_JSON).param("userId", String.valueOf(userId)))
+        when(orderService.getOrders()).thenReturn(expected);
+        MvcResult result = mockMvc.perform(get("/api/order/list").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
         ResponseWrapper<?> actual = objectMapper.readValue(result.getResponse().getContentAsString(), ResponseWrapper.class);
@@ -108,13 +103,11 @@ class OrderControllerTest {
 
     @Test
     void getOrders_bad_request() throws Exception {
-        Integer userId = 1;
-
         List<OrderDetailsDto> orders = new ArrayList<>();
         ResponseWrapper<List<OrderDetailsDto>> expected = new ResponseWrapper<>(orders, false);
 
-        when(orderService.getOrders(userId)).thenReturn(expected);
-        MvcResult result = mockMvc.perform(get("/api/order/list").contentType(MediaType.APPLICATION_JSON).param("userId", String.valueOf(userId)))
+        when(orderService.getOrders()).thenReturn(expected);
+        MvcResult result = mockMvc.perform(get("/api/order/list").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
         ResponseWrapper<?> actual = objectMapper.readValue(result.getResponse().getContentAsString(), ResponseWrapper.class);

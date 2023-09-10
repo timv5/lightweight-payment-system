@@ -22,12 +22,13 @@ Payment history is accessible on admin page.
 
 ## App life cycle
 - Customer tells admin what he would like to buy
+- Admin has listed products and quantities in admin app
 - Admin creates an order with selected products and quantities. Endpoint /api/order/create is called
 - Endpoint /api/order/create returns a QR image
 - Admin tells customer to scan QR image, checks details and completes payment
-- Customer scans QR image and is taken to the http://localhost:4000/{userId}/{orderId}
-- on http://localhost:4000/{userId}/{orderId} 
-- Customer can see current order details. Endpoint /api/order/details is called
+- Customer scans QR image and is taken to the FE page located on http://localhost:4000/{orderId}
+- on http://localhost:4000/{orderId} Customer can see current order details. Endpoint /api/order/details is called - it only shows orders that are not completed
+so that this info is not accessible afterwards
 - Customer clicks on "complete payment"
 - Endpoint /startPayment is called (golang microservice), customer finishes payment on stripe site
 - Once the payment is completed golang service (lightweight-payment-service) publishes message on RMQ, java service (be-lightweight-payment-system) consumes that message and completes an order - this is only for admin 

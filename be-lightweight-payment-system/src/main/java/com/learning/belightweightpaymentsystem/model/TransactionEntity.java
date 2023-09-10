@@ -18,7 +18,6 @@ public class TransactionEntity {
     @Id
     @GeneratedValue
     private Integer transactionId;
-    private Integer userId;
     private Integer orderId;
     private Double transactionAmount;
     @Enumerated(EnumType.STRING)

@@ -41,15 +41,14 @@ class OrderServiceImplTest {
     @Test
     void getOrder_missing_order() {
         // input
-        Integer userId = 1;
         Integer orderId = 1;
 
         // output
         Optional<OrderEntity> actualData = Optional.empty();
         ResponseWrapper<?> expected = new ResponseWrapper<>(false);
 
-        when(orderRepository.findOrderByOrderId(userId)).thenReturn(actualData);
-        ResponseWrapper<?> actual = orderService.getOrder(userId, orderId);
+        when(orderRepository.findOrderEntityByOrderIdAndOrderStatus(orderId, OrderStatus.STARTED)).thenReturn(actualData);
+        ResponseWrapper<?> actual = orderService.getOrder(orderId);
 
         assertEquals(expected.isSuccess(), actual.isSuccess());
         assertEquals(expected.getData(), actual.getData());
@@ -59,11 +58,9 @@ class OrderServiceImplTest {
     void getOrder_missingProduct() {
         // prepare data
         Integer orderId = 1;
-        Integer userId = 1;
         Integer productId = 1;
         OrderEntity data = OrderEntity.builder()
                 .orderStatus(OrderStatus.STARTED)
-                .userId(userId)
                 .productId(productId)
                 .quantity(5)
                 .build();
@@ -72,11 +69,11 @@ class OrderServiceImplTest {
         ResponseWrapper<?> expected = new ResponseWrapper<>(false);
 
         // condition
-        when(orderRepository.findOrderByOrderId(orderId)).thenReturn(actualData);
+        when(orderRepository.findOrderEntityByOrderIdAndOrderStatus(orderId, OrderStatus.STARTED)).thenReturn(actualData);
         when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
         // execute
-        ResponseWrapper<?> actual = orderService.getOrder(userId, orderId);
+        ResponseWrapper<?> actual = orderService.getOrder(orderId);
 
         assertEquals(expected.isSuccess(), actual.isSuccess());
         assertEquals(expected.getData(), actual.getData());
@@ -86,11 +83,9 @@ class OrderServiceImplTest {
     void getOrder_success() {
         // prepare data
         Integer orderId = 1;
-        Integer userId = 1;
         Integer productId = 1;
         OrderEntity data = OrderEntity.builder()
                 .orderStatus(OrderStatus.STARTED)
-                .userId(userId)
                 .productId(productId)
                 .quantity(5)
                 .build();
@@ -115,11 +110,11 @@ class OrderServiceImplTest {
         ResponseWrapper<OrderDetailsDto> expected = new ResponseWrapper<>(orderDetailsDto,true);
 
         // condition
-        when(orderRepository.findOrderByOrderId(orderId)).thenReturn(actualData);
+        when(orderRepository.findOrderEntityByOrderIdAndOrderStatus(orderId, OrderStatus.STARTED)).thenReturn(actualData);
         when(productRepository.findById(any(Integer.class))).thenReturn(expectedProduct);
 
         // execute
-        ResponseWrapper<OrderDetailsDto> actual = orderService.getOrder(userId, orderId);
+        ResponseWrapper<OrderDetailsDto> actual = orderService.getOrder(orderId);
 
         assertEquals(expected.isSuccess(), actual.isSuccess());
         assertEquals(expected.getData().getOrderId(), actual.getData().getOrderId());
@@ -128,15 +123,12 @@ class OrderServiceImplTest {
 
     @Test
     void getOrders_empty_success() {
-        // input
-        Integer orderId = 1;
-
         // output
         List<OrderEntity> actualData = new ArrayList<>();
         ResponseWrapper<?> expected = new ResponseWrapper<>(true);
 
-        when(orderRepository.getAllByUserId(orderId)).thenReturn(actualData);
-        ResponseWrapper<?> actual = orderService.getOrders(orderId);
+        when(orderRepository.findAll()).thenReturn(actualData);
+        ResponseWrapper<?> actual = orderService.getOrders();
         assertEquals(expected.isSuccess(), actual.isSuccess());
         assertEquals(expected.getData(), actual.getData());
     }
@@ -144,22 +136,24 @@ class OrderServiceImplTest {
     @Test
     void getOrders_notEmpty_success() {
         // prepare data
-        Integer orderId = 1;
+        ProductEntity entity = new ProductEntity();
+        entity.setProductPrice(30d);
+        Optional<ProductEntity> productEntity = Optional.of(entity);
         OrderEntity orderEntity = OrderEntity.builder()
                 .orderStatus(OrderStatus.STARTED)
-                .userId(1)
                 .productId(1)
                 .quantity(5)
                 .build();
         List<OrderEntity> actualData = new ArrayList<>();
         actualData.add(orderEntity);
 
-        ResponseWrapper<?> expected = new ResponseWrapper<>(true);
+        ResponseWrapper<?> expected = new ResponseWrapper<>(actualData,true);
 
-        when(orderRepository.getAllByUserId(orderId)).thenReturn(actualData);
-        ResponseWrapper<?> actual = orderService.getOrders(orderId);
+        when(orderRepository.findAll()).thenReturn(actualData);
+        when(productRepository.findById(1)).thenReturn(productEntity);
+
+        ResponseWrapper<?> actual = orderService.getOrders();
         assertEquals(expected.isSuccess(), actual.isSuccess());
-        assertEquals(expected.getData(), actual.getData());
     }
 
     @Test

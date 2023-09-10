@@ -4,6 +4,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
+import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,9 +13,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+@Service
 public class QRCodeGenerator {
 
-    public static byte[] generateQRCode(final String url) throws Exception {
+    public byte[] generateQRCode(final String url) throws Exception {
         int width = 300;
         int height = 300;
 

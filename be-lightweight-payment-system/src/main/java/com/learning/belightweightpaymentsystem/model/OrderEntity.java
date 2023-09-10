@@ -18,7 +18,6 @@ public class OrderEntity {
     @Id
     @GeneratedValue
     private Integer orderId;
-    private Integer userId;
     private Integer productId;
     private Integer quantity;
     @Enumerated(EnumType.STRING)

@@ -11,9 +11,9 @@ public interface OrderService {
 
     ResponseWrapper<OrderDto> createOrder(OrderDto order) throws Exception;
 
-    ResponseWrapper<List<OrderDetailsDto>> getOrders(Integer userId);
+    ResponseWrapper<List<OrderDetailsDto>> getOrders();
 
-    ResponseWrapper<OrderDetailsDto> getOrder(Integer userId, Integer orderId);
+    ResponseWrapper<OrderDetailsDto> getOrder(Integer orderId);
 
     void completeOrder(PaymentDto paymentDto);
 

@@ -33,20 +33,26 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductStockRepository productStockRepository;
     private final ProductRepository productRepository;
+    private final QRCodeUrlGenerator qrCodeUrlGenerator;
+    private final QRCodeGenerator qrCodeGenerator;
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
                             ProductStockRepository productStockRepository,
-                            ProductRepository productRepository
+                            ProductRepository productRepository,
+                            QRCodeUrlGenerator qrCodeUrlGenerator,
+                            QRCodeGenerator qrCodeGenerator
     ) {
         this.orderRepository = orderRepository;
         this.productStockRepository = productStockRepository;
         this.productRepository = productRepository;
+        this.qrCodeUrlGenerator = qrCodeUrlGenerator;
+        this.qrCodeGenerator = qrCodeGenerator;
     }
 
     @Transactional
     public void completeOrder(PaymentDto paymentDto) {
-        if (paymentDto == null || paymentDto.getOrderId() == null || paymentDto.getUserId() == null || paymentDto.getNewOrderStatus() == null) {
+        if (paymentDto == null || paymentDto.getOrderId() == null || paymentDto.getNewOrderStatus() == null) {
             log.error("Missing message data");
             return;
         }
@@ -60,8 +66,8 @@ public class OrderServiceImpl implements OrderService {
         });
     }
 
-    public ResponseWrapper<List<OrderDetailsDto>> getOrders(Integer userId) {
-        List<OrderEntity> orders = orderRepository.getAllByUserId(userId);
+    public ResponseWrapper<List<OrderDetailsDto>> getOrders() {
+        List<OrderEntity> orders = orderRepository.findAll();
         if (orders.isEmpty()) {
             return new ResponseWrapper<>(true);
         }
@@ -77,7 +83,6 @@ public class OrderServiceImpl implements OrderService {
                     .productName(productEntity.get().getProductName())
                     .orderStatus(order.getOrderStatus())
                     .quantity(order.getQuantity())
-                    .userId(userId)
                     .orderPrice(order.getQuantity() * productEntity.get().getProductPrice())
                     .orderId(order.getOrderId())
                     .build();
@@ -88,10 +93,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseWrapper<OrderDetailsDto> getOrder(Integer userId, Integer orderId) {
-        Optional<OrderEntity> order = orderRepository.findOrderByOrderId(orderId);
+    public ResponseWrapper<OrderDetailsDto> getOrder(Integer orderId) {
+        Optional<OrderEntity> order = orderRepository.findOrderEntityByOrderIdAndOrderStatus(orderId, OrderStatus.STARTED);
         if (order.isEmpty()) {
-            log.error("Missing order {}", orderId);
+            log.error("Missing order {} or cannot be accessed again due to it's completion", orderId);
             return new ResponseWrapper<>(false);
         }
 
@@ -106,7 +111,6 @@ public class OrderServiceImpl implements OrderService {
                 .productName(productEntity.get().getProductName())
                 .orderStatus(order.get().getOrderStatus())
                 .quantity(order.get().getQuantity())
-                .userId(userId)
                 .orderPrice(order.get().getQuantity() * productEntity.get().getProductPrice())
                 .orderId(order.get().getOrderId())
                 .build();
@@ -139,9 +143,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderId(orderEntity.getOrderId());
 
         // create QR code and save it to DB
-        byte[] qrCode = QRCodeGenerator.generateQRCode(
-                QRCodeUrlGenerator.generateUrl(frontendBaseUrl, order.getUserId(), orderEntity.getOrderId())
-        );
+        byte[] qrCode = qrCodeGenerator.generateQRCode(qrCodeUrlGenerator.generateUrl(frontendBaseUrl, orderEntity.getOrderId()));
         orderEntity.setQrImage(qrCode);
         orderRepository.save(orderEntity);
 
@@ -153,7 +155,6 @@ public class OrderServiceImpl implements OrderService {
         return OrderEntity.builder()
                 .orderStatus(OrderStatus.STARTED)
                 .quantity(order.getQuantity())
-                .userId(order.getUserId())
                 .productId(order.getProductId())
                 .qrImage(order.getQrImage())
                 .build();
