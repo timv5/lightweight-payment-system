@@ -28,7 +28,7 @@ func (ph PaymentHandler) StartPayment(ctx *gin.Context) {
 		return
 	}
 
-	if requestPayload.OrderID == 0 || requestPayload.UserID == 0 {
+	if requestPayload.OrderID == 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "wrong request params"})
 		return
 	}

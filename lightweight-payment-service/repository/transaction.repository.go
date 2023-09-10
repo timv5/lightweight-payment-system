@@ -6,7 +6,7 @@ import (
 )
 
 type TransactionRepositoryInterface interface {
-	SaveTransaction(userId int, orderId int, transactionAmount float32, transactionStatus string, externalTransactionId string) (model.Transaction, error)
+	SaveTransaction(orderId int, transactionAmount float32, transactionStatus string, externalTransactionId string) (model.Transaction, error)
 	GetTransactionByExternalId(externalTransactionId int) model.Transaction
 	UpdateTransaction(transactionId int, status string) (model.Transaction, error)
 }
@@ -19,10 +19,9 @@ func NewTransactionRepository(mySQL *gorm.DB) *TransactionRepository {
 	return &TransactionRepository{mySQL: mySQL}
 }
 
-func (repo *TransactionRepository) SaveTransaction(userId int, orderId int, transactionAmount float32,
+func (repo *TransactionRepository) SaveTransaction(orderId int, transactionAmount float32,
 	transactionStatus string, externalTransactionId string) (model.Transaction, error) {
 	createTransaction := model.Transaction{
-		UserID:                userId,
 		OrderID:               orderId,
 		TransactionAmount:     transactionAmount,
 		TransactionStatus:     transactionStatus,

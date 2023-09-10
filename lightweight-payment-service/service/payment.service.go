@@ -78,7 +78,6 @@ func (paymentService *PaymentService) CompletePayment(stripeWebhookRequest *requ
 
 	var savedMessage = rmq2.PaymentDto{
 		OrderId:        updatedTransaction.OrderID,
-		UserId:         updatedTransaction.UserID,
 		NewOrderStatus: newStatus,
 		TransactionID:  updatedTransaction.TransactionID,
 	}
@@ -122,17 +121,18 @@ func (paymentService *PaymentService) StartPayment(paymentRequest *request.Payme
 		orderEntity.Quantity,
 		productEntity.ProductName,
 		productEntity.ProductPrice,
+		paymentRequest.Token,
 	)
 	if stripeResponse.Status != "success" {
 		transactionStatus = enums.FAILED
-		return response.PaymentResponse{Status: false, Message: "error on stripe side"}, nil
+		return response.PaymentResponse{OrderID: orderEntity.OrderID, Status: false, Message: "error on stripe side"}, nil
 	} else {
 		transactionStatus = enums.STARTED
 	}
 
 	// insert transaction completed
 	var transaction model.Transaction
-	transaction, err = paymentService.transactionRepository.SaveTransaction(paymentRequest.UserID, paymentRequest.OrderID,
+	transaction, err = paymentService.transactionRepository.SaveTransaction(paymentRequest.OrderID,
 		getCalculatedAmount(orderEntity.Quantity, productEntity.ProductPrice), transactionStatus, stripeResponse.ExternalTransactionID)
 	if err != nil {
 		return response.PaymentResponse{Status: false, Message: "Transaction error"}, err

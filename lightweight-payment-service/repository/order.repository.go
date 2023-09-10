@@ -29,7 +29,7 @@ func (repo *OrderRepository) UpdateOrderStatus(orderId int, newStatus string) (m
 
 func (repo *OrderRepository) GetOrder(orderId int) (model.Order, error) {
 	var orderEntity model.Order
-	repo.mySQL.Raw("select order_id, user_id, product_id, quantity, order_status from orders where order_id = ? ", orderId).Scan(&orderEntity)
+	repo.mySQL.Raw("select order_id, product_id, quantity, order_status from orders where order_id = ? ", orderId).Scan(&orderEntity)
 	if (model.Order{} == orderEntity) {
 		return model.Order{}, nil
 	} else {
